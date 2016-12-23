@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+  
+<mapper namespace="address">
+<cache
+  eviction="FIFO"
+  flushInterval="60000"
+  size="512"
+  readOnly="true"/>
+  
+    
+	<resultMap id="LmnResultMap" type="in.saram.address.vo.LmnNmVO">
+	  <result property="zip" column="zip"/>	  
+	  <result property="zipSn" column="zip_sn"/>
+	  <result property="koreanAtptNm" column="korean_atpt_nm"/>
+	  <result property="koreanSignguNm" column="korean_signgu_nm"/>
+	  <result property="koreanEupNmDong" column="korean_eup_nm_dong"/>
+	  <result property="dtAdd" column="dtadd"/>
+	  <result property="etcLnbr" column="etc_lnbr"/>
+	</resultMap>
+	
+	<resultMap id="AddressResultMap" type="in.saram.address.vo.AddressVO">
+	  <result property="mxtrBldMno" column="mxtr_bld_mno"/>	  
+	  <result property="rnCd" column="rn_cd"/>
+	  <result property="koreanAtptNm" column="korean_atpt_nm"/>
+	  <result property="koreanSignguNm" column="korean_signgu_nm"/>
+	  <result property="koreanEmd" column="korean_emd"/>
+	  <result property="dtAdd" column="dtadd"/>
+	  <result property="etcLnbr" column="etc_lnbr"/>
+	  <result property="koreanRn" column="korean_rn"/>
+	  <result property="bmna" column="bmna"/>
+	  <result property="bldNm" column="bld_nm"/>
+	  <result property="zip" column="zip"/>	  
+	  <result property="zipSn" column="zip_sn"/>
+	  <result property="fullTextSearch" column="full_text_search"/>
+	  <result property="score" column="score"/>
+	  
+	</resultMap>
+	
+	<select id="getCurrentDateTime" resultType="String">
+        SELECT NOW()
+    </select>
+    
+    <select id="getLmnNmList" resultMap="LmnResultMap">
+		SELECT 
+			zip
+			, zip_sn
+			, korean_atpt_nm 
+			, korean_signgu_nm 
+			, korean_eup_nm_dong
+			, dtadd
+			, etc_lnbr
+		FROM TB_LMN_NM_M 
+		WHERE korean_eup_nm_dong LIKE CONCAT(#{koreanEupNmDong},'%')
+	</select>
+	
+	<select id="getAddressListCount" parameterType="in.saram.address.vo.ParamAddressVO" resultType="Integer"> 
+		
+		SELECT COUNT(*)	 
+		  FROM TB_RNLMN_NM_M
+	  <choose>                
+       <when test="space > 0">
+         WHERE MATCH(FULL_TEXT_SEARCH) against(CONCAT("'\"", #{address}, "\"'" IN BOOLEAN MODE)
+       </when>                           
+       <otherwise>
+         WHERE MATCH(FULL_TEXT_SEARCH) against(CONCAT("'", #{address}, "'") IN BOOLEAN MODE) 
+       
+       </otherwise>
+                
+      </choose>	    	 
+	</select>
+	
+	<select id="getAddressList" parameterType="in.saram.address.vo.ParamAddressVO" resultMap="AddressResultMap">
+		
+		SELECT mxtr_bld_mno 
+			  , rn_cd 
+			  , korean_atpt_nm    
+			  , korean_signgu_nm 
+			  , korean_emd
+			  , dtadd    
+			  , etc_lnbr	 
+			  , korean_rn  
+			  , CONCAT((CASE WHEN undgrnd_yn = '1' THEN CONCAT('지하 ',bmna) ELSE bmna END),(CASE WHEN bsna > 0 THEN CONCAT('-',bsna) ELSE '' END))AS bmna  
+			  , bld_nm 
+			  , zip
+			  , zip_sn  
+			  , full_text_search
+			  <choose>                
+       		   <when test="space > 0">
+         		 , MATCH(full_text_search) AGAINST(CONCAT("'\"", #{address}, "\"'") IN BOOLEAN MODE) AS score
+               </when>                          
+       		   <otherwise>
+        	     , MATCH(full_text_search) AGAINST(CONCAT("'", #{address}, "'") IN BOOLEAN MODE) AS score       
+       		   </otherwise>	
+       		  </choose>		  	 
+		  FROM TB_RNLMN_NM_M
+	  <choose>                
+       <when test="space > 0">
+         WHERE MATCH(FULL_TEXT_SEARCH) against(CONCAT("'\"", #{address}, "\"'") IN BOOLEAN MODE)
+       </when>                          
+       <otherwise>
+         WHERE MATCH(FULL_TEXT_SEARCH) against(CONCAT("'", #{address}, "'") IN BOOLEAN MODE)
+       
+       </otherwise>                
+      </choose>
+      limit #{startPosition}, #{offset};
+		 
+	</select>
+</mapper>

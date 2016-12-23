@@ -1,0 +1,127 @@
+#====================================
+#=============  common ===============
+#====================================
+info.app:
+  name: UnifiedAddress API
+  description: Saramin Service Address API and UI
+  version: 1.0.0-snapshot
+
+---
+#====================================
+#=============== local ==============
+#====================================
+spring:
+  profiles: local
+ 
+ ### openData DataSource
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver   
+    url: jdbc:mysql://10.100.0.143:9090/opendata
+    username: sri_dev
+    password: tkfkadlsroqkfwk)^!*
+    initial-size: 50
+    max-active: 200
+    max-idle: 100
+    min-idle: 50
+    max-wait: 10000
+    validationQuery: SELECT 1
+    
+#### logback set
+logging:
+  config: classpath:logback/logback-console.xml
+  level:
+    in.saram: DEBUG
+
+### 정제서버 접근 설정
+refine: 
+  ip: 10.0.0.152
+  port: 15555
+  subPort: 5555
+  setEncoding: EUC-KR
+  revEncoding: EUC-KR
+  
+ 
+#### http port set
+server:
+  port: 80
+
+---
+#==================================== 
+#============= development ==========
+#====================================
+spring:
+  profiles: development
+  
+### openData DataSource
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    tomcat.connection-properties: zeroDateTimeBehavior=convertToNull&autoReconnect=true&failOverReadOnly=false&maxReconnects=15&useUnicode=true
+    url: jdbc:mysql://10.100.0.172:3306/opendata
+    username: sri_dev
+    password: tkfkadlsroqkfwk)^!*    
+    initial-size: 50
+    max-active: 200
+    max-idle: 100
+    min-idle: 50
+    max-wait: 10000
+    validationQuery: SELECT 1
+    
+#### logback set
+logging:
+  config: classpath:logback/logback-service.xml 
+  level:
+    in.saram: INFO
+ 
+### 정제서버 접근 설정
+refine: 
+  ip: 10.0.0.152
+  port: 15555
+  subPort: 5555
+  setEncoding: EUC-KR
+  revEncoding: EUC-KR
+  
+ 
+#### http port set
+server:
+  port: 80
+   
+---
+#====================================
+#============= production ===========
+#====================================
+spring:
+  profiles: production
+
+### openData DataSource
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    tomcat.connection-properties: zeroDateTimeBehavior=convertToNull&autoReconnect=true&failOverReadOnly=false&maxReconnects=15&useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://10.100.0.172:3306/opendata
+    username: sri_dev
+    password: tkfkadlsroqkfwk)^!*    
+    initial-size: 50
+    max-active: 200
+    max-idle: 100
+    min-idle: 50
+    max-wait: 10000
+    validationQuery: SELECT 1
+    
+#### logback set
+logging:
+  config: classpath:logback/logback-service.xml
+  level:
+    in.saram: INFO
+
+### 정제서버 접근 설정
+refine: 
+  ip: 10.0.0.152
+  port: 15555
+  subPort: 5555
+  setEncoding: EUC-KR
+  revEncoding: EUC-KR
+  
+  
+#### http port set
+server:
+  port: 80
+  
